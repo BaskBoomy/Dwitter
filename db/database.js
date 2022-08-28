@@ -1,11 +1,17 @@
+import Mongoose from 'mongoose';
 import { config } from '../config.js';
-import mysql from 'mysql2';
 
-const pool = mysql.createPool({
-    host:  config.db.host,
-    user:  config.db.user,
-    database: config.db.database,
-    password: config.db.password,
-});
+export async function connectDB(){
+    return Mongoose.connect(config.db.host);
+}
 
-export const db = pool.promise();
+
+//_id -> id
+export function useVirtualId(schema){
+    schema.virtual('id').get(function(){
+        return this._id.toString();
+    });
+    
+    schema.set('toJSON',{virtuals:true});
+    schema.set('toObject',{virtuals:true}); //console.log로 출력할 때 확인하기위해
+}

@@ -1,58 +1,42 @@
-import * as userRepository from '../data/auth.js';
-import { db } from '../db/database.js';
+import Mongoose from "mongoose";
+import {useVirtualId} from "../db/database.js";
+import {findById} from "./auth.js";
 
-const SELECT_JOIN = 
-    'SELECT T.id, T.text, T.createdAt, T.userId, U.username, U.name, U.url FROM tweets AS T JOIN users AS U ON T.userId = U.id';
-const ORDER_DESC = 
-    'ORDER BY t.createdAt DESC';
+const tweetSchema = new Mongoose.Schema({
+    text: {type:String, required:true},
+    userId: {type:String, required:true},
+    name: {type:String, required:true},
+    username: {type:String, required:true},
+    url: String,
+  }, {timestamps: true} //자동으로 createdAt updatedAt 컬럼 생성
+  );
+
+//_id -> id : 가상으로 컬럼명이'id'인 컬럼 생성하기
+useVirtualId(tweetSchema);
+const Tweet = Mongoose.model('Tweet', tweetSchema);
 
 export async function getAll(){
-    return db
-        .execute(`${SELECT_JOIN} ${ORDER_DESC}`)
-        .then((result)=>{
-            console.log(result);
-            return result[0];
-    })
+    return Tweet.find().sort({createdAt:-1});
 }
 export async function getAllByUsername(username){
-    return db
-        .execute(`${SELECT_JOIN} WHERE username=?  ${ORDER_DESC}`, [username])
-        .then((result)=>{
-            console.log(result);
-            return result[0];
-    })
+    return Tweet.find({username}).sort({createdAt:-1});
 }
 export async function getById(id){
-    return db
-        .execute(`${SELECT_JOIN} WHERE t.id=?`, [id])
-        .then((result)=>{
-            console.log(result);
-            return result[0][0];
-    })
+    return Tweet.findById(id);
 }
 export async function create(text, userId){
-    return db
-    .execute(
-        'INSERT INTO tweets (text,createdAt, userId) VALUES(?,?,?)',
-        [text,new Date(),userId]
-    )
-    .then((result)=> getById(result[0].insertId));
+    return findById(userId)
+        .then((user)=>{
+            new Tweet({text,userId,name:user.name,username:user.username})
+            .save()
+        })
 }
 
 export async function update(id,text){
-    return db
-    .execute(
-        'UPDATE tweets SET text=? WHERE id=?',[text, id]
-    )
-    .then(()=> getById(id));
+    //returnOriginal->false: 업데이트된것을 return하기위한 설정
+    return Tweet.findByIdAndUpdate(id,{text},{returnOriginal: false});
 }
 
 export async function remove(id){
-    return db
-    .execute(
-        'DELETE FROM tweets WHERE id=?',[id]
-    )
-    .then(()=>{
-        console.log('Deleted Success :)');
-    });
+    return Tweet.findByIdAndDelete(id);
 }

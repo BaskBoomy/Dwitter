@@ -1,26 +1,26 @@
-import {db} from '../db/database.js';
+import Mongoose from "mongoose";
+import {useVirtualId} from "../db/database.js";
+
+const userSchema = new Mongoose.Schema({
+  username: {type:String, required:true},
+  name: {type:String, required:true},
+  email: {type:String, required:true},
+  password: {type:String, required:true},
+  url: String,
+});
+
+//_id -> id : 가상으로 컬럼명이'id'인 컬럼 생성하기
+useVirtualId(userSchema);
+const User = Mongoose.model('User', userSchema);
 
 export async function findByUsername(username){
-    return db
-        .query(
-            `SELECT * FROM users WHERE username=?`,
-            [username])
-        .then((result)=>result[0][0])
+    return User.findOne({username});
 }
 
-export async function findById(userId){
-    return db
-        .query(
-            `SELECT * FROM users WHERE id=?`,
-            [userId])
-        .then((result)=>result[0][0])
+export async function findById(id){
+    return User.findById(id);
 }
 
-export async function createUser(newUser){
-    const {username, password,name, email,url} = newUser;
-    return db
-    .execute(
-        'INSERT INTO users (username, password, name, email, url) VALUES(?,?,?,?,?)'
-        ,[username, password,name, email,url])
-    .then((result)=> result[0].insertId);
+export async function createUser(user){
+    return new User(user).save().then(data=> {console.log(data.id); return data.id;});
 }
