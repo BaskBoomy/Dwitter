@@ -7,7 +7,6 @@ import tweetRouter from './router/tweets.js';
 import authRouter from './router/auth.js';
 import {config} from './config.js';
 import {initSocket} from './connection/socket.js'
-import { db } from './db/database.js';
 import {sequelize} from './db/database.js';
 
 const app = express();
@@ -31,7 +30,7 @@ app.use((error, req, res, next) => {
 // db.getConnection();
 
 //sync() : 모델과 모델에서 정의한 스키마가 데이터베이스에 테이블로 존재하지않으면 자동으로 생성해주는 함수
-sequelize.sync().then(client => {
+sequelize.sync().then(() => {
     // console.log(client);
     //db에 연결하고 서버 시작
     const server = app.listen(config.host.port);
