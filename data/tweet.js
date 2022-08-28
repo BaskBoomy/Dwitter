@@ -1,66 +1,58 @@
 import * as userRepository from '../data/auth.js';
-let tweets = [
-    {
-        id : "1",
-        text : "Hello Jack",
-        createdAt : new Date().toString(),
-        userId : '1'
-    },    
-    {        
-        id : "2",
-        text : "Hello Jina",
-        createdAt : new Date().toString(),
-        userId : '1'
-    },    
-    {        
-        id : "3",
-        text : "Hello Jack",
-        createdAt : new Date().toString(),
-        userId : '1'
-    },
-];
+import { db } from '../db/database.js';
+
+const SELECT_JOIN = 
+    'SELECT T.id, T.text, T.createdAt, T.userId, U.username, U.name, U.url FROM tweets AS T JOIN users AS U ON T.userId = U.id';
+const ORDER_DESC = 
+    'ORDER BY t.createdAt DESC';
 
 export async function getAll(){
-    return Promise.all(
-        tweets.map(async(tweet)=>{
-            const {username, name, url} = await userRepository.findById(tweet.userId);
-            return {...tweet, username, name, url};
-        })
-    );
+    return db
+        .execute(`${SELECT_JOIN} ${ORDER_DESC}`)
+        .then((result)=>{
+            console.log(result);
+            return result[0];
+    })
 }
 export async function getAllByUsername(username){
-    return getAll().then((tweets)=>
-        tweets.filter((t) => t.username === username)
-    );
+    return db
+        .execute(`${SELECT_JOIN} WHERE username=?  ${ORDER_DESC}`, [username])
+        .then((result)=>{
+            console.log(result);
+            return result[0];
+    })
 }
 export async function getById(id){
-    const found = tweets.find((t) => t.id === id);
-    if(!found){
-        return null;
-    }
-    const {username, name, url} = await userRepository.findById(found.userId);
-    return {...found, username,name,url};
+    return db
+        .execute(`${SELECT_JOIN} WHERE t.id=?`, [id])
+        .then((result)=>{
+            console.log(result);
+            return result[0][0];
+    })
 }
 export async function create(text, userId){
-    const newTweet = {
-        "id" : Date.now().toString(),
-        "text" : text,
-        "createdAt" : new Date(),
-        "userId" : userId,
-    }
-    //배열 맨앞에 새로운 데이터 넣기
-    tweets = [newTweet, ...tweets];
-    return getById(newTweet.id);
+    return db
+    .execute(
+        'INSERT INTO tweets (text,createdAt, userId) VALUES(?,?,?)',
+        [text,new Date(),userId]
+    )
+    .then((result)=> getById(result[0].insertId));
 }
 
 export async function update(id,text){
-    const tweet = tweets.find((t) => t.id === id);
-    if(tweet){
-        tweet.text = text;
-    }
-    return getById(tweet.id);
+    return db
+    .execute(
+        'UPDATE tweets SET text=? WHERE id=?',[text, id]
+    )
+    .then(()=> getById(id));
 }
 
 export async function remove(id){
-    tweets = tweets.filter( t => t.id !== id);
+    return db
+    .execute(
+        'DELETE FROM tweets WHERE id=?',[id]
+    )
+    .then(()=>{
+        console.log('Deleted Success :)');
+    });
 }
