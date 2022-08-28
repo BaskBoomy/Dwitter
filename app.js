@@ -10,7 +10,12 @@ import {initSocket} from './connection/socket.js'
 import { db } from './db/database.js';
 
 const app = express();
-app.use(cors());
+
+const corsOption = {
+    origin: config.cors.allowedOrigin,
+    optionsSuccessStatus: 200,
+};
+app.use(cors(corsOption));
 
 app.use(express.json());
 app.use(helmet());
@@ -28,5 +33,7 @@ app.use((error, req, res, next) => {
     res.sendStatus(500);
 })
 db.getConnection();
-const server = app.listen(config.host.port);
-initSocket(server);
+sequelize.sync().then(()=>{
+    const server = app.listen(config.port);
+    initSocket(server);
+})
