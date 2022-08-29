@@ -33,6 +33,6 @@ app.use((error, req, res, next) => {
 sequelize.sync().then(() => {
     // console.log(client);
     //db에 연결하고 서버 시작
-    const server = app.listen(config.host.port);
+    const server = app.listen(config.db.port);
     initSocket(server);
 });
