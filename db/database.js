@@ -1,4 +1,3 @@
-import mysql from 'mysql2';
 import SQ from 'sequelize';
 import { config } from '../config.js';
 
