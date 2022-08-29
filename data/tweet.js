@@ -33,8 +33,8 @@ export async function getById(id){
 export async function create(text, userId){
     return db
     .execute(
-        'INSERT INTO tweets (text,createdAt, userId) VALUES(?,?,?)',
-        [text,new Date(),userId]
+        'INSERT INTO tweets (text,createdAt,updatedAt, userId) VALUES(?,?,?,?)',
+        [text,new Date(),new Date(),userId]
     )
     .then((result)=> getById(result[0].insertId));
 }

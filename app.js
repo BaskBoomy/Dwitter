@@ -32,8 +32,8 @@ app.use((error, req, res, next) => {
     console.error(error);
     res.sendStatus(500);
 })
-db.getConnection();
-sequelize.sync().then(()=>{
+db.getConnection().then(()=>{
+    console.log(`Server is started... ${new Date()}`);
     const server = app.listen(config.port);
     initSocket(server);
-})
+});
