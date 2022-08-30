@@ -15,17 +15,19 @@ const validateLogin = [
     body('password').trim().isLength({min:5}).withMessage('최소 5글자'),
     validate
 ];
-
-const validateSignUp = [
-    ...validateLogin,
-    body('name').notEmpty().withMessage('name is missing'),
-    body('email').isEmail().normalizeEmail().withMessage('invalid email'),
-    body('url').isURL().withMessage('invalid URL').optional({nullable:true, checkFalsy:true}),
-    validate
-];
-
 router.post('/login',validateLogin,authController.login);
-router.post('/signup',validateSignUp,authController.signup);
-router.get('/me',isAuth, authController.me);
 
+//TODO : Swagger 문서 이용
+// const validateSignUp = [
+//     ...validateLogin,
+//     body('name').notEmpty().withMessage('name is missing'),
+//     body('email').isEmail().normalizeEmail().withMessage('invalid email'),
+//     body('url').isURL().withMessage('invalid URL').optional({nullable:true, checkFalsy:true}),
+//     validate
+// ];
+// router.post('/signup',validateSignUp,authController.signup);
+
+router.post('/logout',authController.logout);
+router.get('/me',isAuth, authController.me);
+router.get('/csrf-token', authController.csrfToken);
 export default router;

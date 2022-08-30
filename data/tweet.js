@@ -45,7 +45,7 @@ const ORDER_DESC = {
     order:[['createdAt', 'DESC']]
 }
 export async function getAll() {
-    return Tweet.findAll({...INCLUDE_USER,...ORDER_DESC});
+    return Tweet.findAll({...INCLUDE_USER,...ORDER_DESC,raw: true});
     // return db
     //     .execute(`${SELECT_JOIN} ${ORDER_DESC}`)
     //     .then((result)=>{
@@ -57,6 +57,7 @@ export async function getAllByUsername(username) {
     return Tweet.findAll({...INCLUDE_USER, ...ORDER_DESC, include:{
         ...INCLUDE_USER.include,
         where:{username},
+        raw: true
     }});
     // return db
     //     .execute(`${SELECT_JOIN} WHERE username=?  ${ORDER_DESC}`, [username])

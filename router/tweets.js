@@ -15,7 +15,8 @@ const validateTweet =
 
 //GET /tweets
 //GET /tweets?username=:username
-router.get('/', isAuth, tweetController.getTweets)
+//TODO : Swagger 문서 이용
+// router.get('/', isAuth, tweetController.getTweets)
 
 //GET /tweets/:id
 router.get('/:id', isAuth, tweetController.getTweet)
